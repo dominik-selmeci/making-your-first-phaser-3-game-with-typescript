@@ -8,6 +8,13 @@ const config: GameConfig = {
   width: 800,
   height: 600,
   scene: [PhaserScene],
+  physics: {
+    default: 'arcade',
+    arcade: {
+      gravity: { y: 300 },
+      debug: false,
+    },
+  },
 };
 
 export default new Game(config);
