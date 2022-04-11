@@ -3,6 +3,10 @@ import { Scene, Physics } from "phaser";
 export default class HelloWorldScene extends Scene {
   private platforms: Physics.Arcade.StaticGroup | null = null;
 
+  constructor(config: Phaser.Types.Scenes.SettingsConfig) {
+    super(config);
+  }
+
   preload() {
     // image size is taken from file
     this.load.image("sky", "assets/sky.png");
@@ -37,7 +41,16 @@ export default class HelloWorldScene extends Scene {
   }
 
   private createPlayer() {
-    this.physics.add.sprite(100, 450, "dude").setBounce(0.2).setCollideWorldBounds(true);
+    if (!this.platforms) {
+      return;
+    }
+
+    const player = this.physics.add
+      .sprite(100, 450, "dude")
+      .setBounce(0.2)
+      .setCollideWorldBounds(true);
+    player.body.setGravityY(300);
+    this.physics.add.collider(player, this.platforms);
 
     this.anims.create({
       key: "left",
