@@ -2,6 +2,7 @@ import { Scene, Physics } from "phaser";
 
 export default class HelloWorldScene extends Scene {
   private platforms: Physics.Arcade.StaticGroup | null = null;
+  private player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | null = null;
 
   constructor(config: Phaser.Types.Scenes.SettingsConfig) {
     super(config);
@@ -28,7 +29,28 @@ export default class HelloWorldScene extends Scene {
     this.createPlayer();
   }
 
-  update() {}
+  update() {
+    const cursors = this.input.keyboard.createCursorKeys();
+
+    if (!this.player) {
+      return;
+    }
+
+    if (cursors.left.isDown) {
+      this.player.setVelocityX(-160);
+      this.player.anims.play("left", true);
+    } else if (cursors.right.isDown) {
+      this.player.setVelocityX(160);
+      this.player.anims.play("right", true);
+    } else {
+      this.player.setVelocityX(0);
+      this.player.anims.play("turn");
+    }
+
+    if (cursors.up.isDown && this.player.body.touching.down) {
+      this.player.setVelocityY(-480);
+    }
+  }
 
   private createPlatforms() {
     // this.physics is not initialized in the constructor and is for arcade physics
@@ -45,12 +67,12 @@ export default class HelloWorldScene extends Scene {
       return;
     }
 
-    const player = this.physics.add
+    this.player = this.physics.add
       .sprite(100, 450, "dude")
-      .setBounce(0.2)
+      .setBounce(0.1)
       .setCollideWorldBounds(true);
-    player.body.setGravityY(300);
-    this.physics.add.collider(player, this.platforms);
+    this.player.body.setGravityY(300);
+    this.physics.add.collider(this.player, this.platforms);
 
     this.anims.create({
       key: "left",
