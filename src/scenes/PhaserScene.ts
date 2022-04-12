@@ -27,6 +27,7 @@ export default class HelloWorldScene extends Scene {
 
     this.createPlatforms();
     this.createPlayer();
+    this.createStars();
   }
 
   update() {
@@ -93,5 +94,32 @@ export default class HelloWorldScene extends Scene {
       frameRate: 10,
       repeat: -1,
     });
+  }
+
+  private createStars() {
+    const stars = this.physics.add.group({
+      key: "star",
+      repeat: 11,
+      setXY: { x: 12, y: 0, stepX: 70 },
+    });
+    stars.children.each((star) => {
+      (star as Phaser.Types.Physics.Arcade.ImageWithDynamicBody).setBounceY(
+        Phaser.Math.FloatBetween(0.2, 0.9)
+      );
+    });
+
+    if (!this.platforms || !this.player) {
+      return;
+    }
+    this.physics.add.collider(stars, this.platforms);
+    this.physics.add.overlap(
+      this.player,
+      stars,
+      (_, star) => {
+        star.destroy();
+      },
+      undefined,
+      this
+    );
   }
 }
