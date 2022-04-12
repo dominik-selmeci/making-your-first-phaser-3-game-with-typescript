@@ -3,6 +3,8 @@ import { Scene, Physics } from "phaser";
 export default class HelloWorldScene extends Scene {
   private platforms: Physics.Arcade.StaticGroup | null = null;
   private player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | null = null;
+  private score = 0;
+  private scoreText: Phaser.GameObjects.Text | null = null;
 
   constructor(config: Phaser.Types.Scenes.SettingsConfig) {
     super(config);
@@ -28,6 +30,7 @@ export default class HelloWorldScene extends Scene {
     this.createPlatforms();
     this.createPlayer();
     this.createStars();
+    this.createScoreInfo();
   }
 
   update() {
@@ -117,9 +120,22 @@ export default class HelloWorldScene extends Scene {
       stars,
       (_, star) => {
         star.destroy();
+        this.score += 10;
+        if (!this.scoreText) {
+          return;
+        }
+
+        this.scoreText.setText(`Score: ${this.score}`);
       },
       undefined,
       this
     );
+  }
+
+  private createScoreInfo() {
+    this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, {
+      fontSize: "32px",
+      color: "#000",
+    });
   }
 }
