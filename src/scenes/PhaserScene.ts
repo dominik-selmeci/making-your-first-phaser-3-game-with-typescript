@@ -3,6 +3,7 @@ import { Scene, Physics } from "phaser";
 export default class HelloWorldScene extends Scene {
   private platforms: Physics.Arcade.StaticGroup | null = null;
   private player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | null = null;
+  private bombs: Physics.Arcade.Group | null = null;
   private score = 0;
   private scoreText: Phaser.GameObjects.Text | null = null;
 
@@ -31,6 +32,7 @@ export default class HelloWorldScene extends Scene {
     this.createPlayer();
     this.createStars();
     this.createScoreInfo();
+    this.createBombs();
   }
 
   update() {
@@ -102,8 +104,8 @@ export default class HelloWorldScene extends Scene {
   private createStars() {
     const stars = this.physics.add.group({
       key: "star",
-      repeat: 11,
-      setXY: { x: 12, y: 0, stepX: 70 },
+      repeat: 5,
+      setXY: { x: 60, y: 0, stepX: 130 },
     });
     stars.children.each((star) => {
       (star as Phaser.Types.Physics.Arcade.ImageWithDynamicBody).setBounceY(
@@ -119,13 +121,32 @@ export default class HelloWorldScene extends Scene {
       this.player,
       stars,
       (_, star) => {
-        star.destroy();
+        (star as Phaser.Types.Physics.Arcade.ImageWithDynamicBody).disableBody(true, true);
         this.score += 10;
         if (!this.scoreText) {
           return;
         }
 
         this.scoreText.setText(`Score: ${this.score}`);
+
+        if (stars.countActive(true) === 0) {
+          stars.children.iterate(function (child) {
+            const star = child as Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
+            star.enableBody(true, star.x, 0, true, true);
+          });
+
+          if (!this.bombs || !this.player) {
+            return;
+          }
+
+          var x =
+            this.player?.x < 400 ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+
+          const bomb = this.bombs.create(x, 16, "bomb");
+          bomb.setBounce(1);
+          bomb.setCollideWorldBounds(true);
+          bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+        }
       },
       undefined,
       this
@@ -137,5 +158,25 @@ export default class HelloWorldScene extends Scene {
       fontSize: "32px",
       color: "#000",
     });
+  }
+
+  private createBombs() {
+    if (!this.player || !this.platforms) {
+      return;
+    }
+
+    this.bombs = this.physics.add.group();
+    this.physics.add.collider(this.bombs, this.platforms);
+    this.physics.add.collider(
+      this.player,
+      this.bombs,
+      (player) => {
+        this.physics.pause();
+        (player as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody).setTint(0xff0000);
+        (player as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody).anims.play("turn");
+      },
+      undefined,
+      this
+    );
   }
 }
