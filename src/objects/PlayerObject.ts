@@ -44,11 +44,13 @@ export default class PlayerObject extends GameObjects.GameObject {
   update() {
     const cursors = this.scene.input.keyboard.createCursorKeys();
 
+    const speed = cursors.shift.isDown ? 340 : 160;
+
     if (cursors.left.isDown) {
-      this.playerSprite.setVelocityX(-160);
+      this.playerSprite.setVelocityX(-speed);
       this.playerSprite.anims.play('left', true);
     } else if (cursors.right.isDown) {
-      this.playerSprite.setVelocityX(160);
+      this.playerSprite.setVelocityX(speed);
       this.playerSprite.anims.play('right', true);
     } else {
       this.playerSprite.setVelocityX(0);
