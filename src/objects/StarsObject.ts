@@ -1,12 +1,12 @@
-import { Physics, GameObjects, Scene } from "phaser";
-import PlayerObject from "./PlayerObject";
+import { Physics, GameObjects, Scene } from 'phaser';
+import PlayerObject from './PlayerObject';
 
 export default class StarObject extends GameObjects.GameObject {
   platforms: Physics.Arcade.StaticGroup;
   starGroup!: Physics.Arcade.Group;
 
   constructor(scene: Scene, platforms: Physics.Arcade.StaticGroup) {
-    super(scene, "stars");
+    super(scene, 'stars');
     this.platforms = platforms;
 
     this.create();
@@ -14,7 +14,7 @@ export default class StarObject extends GameObjects.GameObject {
 
   create() {
     this.starGroup = this.scene.physics.add.group({
-      key: "star",
+      key: 'star',
       repeat: 5,
       setXY: { x: 60, y: 0, stepX: 130 },
     });

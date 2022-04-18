@@ -9,6 +9,7 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 end_of_line = lf
 max_line_length = 100
+quote_type = single
 
 [*.md]
 max_line_length = off
