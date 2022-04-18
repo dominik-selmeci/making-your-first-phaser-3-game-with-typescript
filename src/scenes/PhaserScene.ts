@@ -21,6 +21,7 @@ export default class HelloWorldScene extends Scene {
     this.load.image('star', 'assets/star.png');
     this.load.image('bomb', 'assets/bomb.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.audio('coin', 'audio/coin.mp3');
   }
 
   create() {
@@ -59,11 +60,16 @@ export default class HelloWorldScene extends Scene {
           null,
           star as Phaser.Types.Physics.Arcade.ImageWithDynamicBody
         );
+
         if (starObject.starGroup.countActive(true) === 6) {
           this.bombObject.createBomb(
             (player as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody).x
           );
         }
+
+        this.sound.add('coin');
+        this.sound.play('coin');
+
         this.updateScoreInfo();
       },
       undefined,
