@@ -1,16 +1,18 @@
+# **Playable demo is available [here](https://dominik-selmeci.github.io/demos/making-your-first-phaser-3-game-with-typescript/)**.
+
 # Introduction
 
-Hi folks, this is my approach on tutorial from this [Phaser 3 introduction tutorial](http://phaser.io/tutorials/making-your-first-phaser-3-game).
+Hi folks, this is my approach to the tutorial from this [Phaser 3 introduction tutorial](http://phaser.io/tutorials/making-your-first-phaser-3-game).
 
 I wanted to write it in complete typescript, with correct types and fast building speeds.
 That's the reason why I use [Vite](https://vitejs.dev/) for instant server and builds.
-I also added some bonus code, check them out on the bottom!
+I also added some bonus codes, check them out at the bottom!
 
-If you are starting with Phaser 3 from scratch, then I recommend to read the code from the [first commit](https://github.com/dominik-selmeci/making-your-first-phaser-3-game-with-typescript/commit/4bcae6def8e24ec82c94b865ee9fd9d26f6fdb5b) up to the last one.
+If you are starting with Phaser 3 from scratch, then I recommend reading the code from the [first commit](https://github.com/dominik-selmeci/making-your-first-phaser-3-game-with-typescript/commit/4bcae6def8e24ec82c94b865ee9fd9d26f6fdb5b) up to the last one.
 
 # Usage
 
-Run development with instant reload in browser on [localhost:3000](http://localhost:3000/)
+Run development with instant reload in the browser on [localhost:3000](http://localhost:3000/)
 
 ```
 yarn dev
