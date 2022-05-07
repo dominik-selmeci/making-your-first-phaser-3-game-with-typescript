@@ -1,4 +1,4 @@
-import { Scene, Physics } from 'phaser';
+import { Scene, Physics, GameObjects } from 'phaser';
 import BombObject from '../objects/BombObject';
 import PlayerObject from '../objects/PlayerObject';
 import StarObject from '../objects/StarsObject';
@@ -6,7 +6,8 @@ import StarObject from '../objects/StarsObject';
 export default class HelloWorldScene extends Scene {
   private platforms!: Physics.Arcade.StaticGroup;
   private player!: PlayerObject;
-  private bombObject!: BombObject;
+  private stars!: GameObjects.Group;
+  private bombs!: GameObjects.Group;
   private score = 0;
   private scoreText!: Phaser.GameObjects.Text;
 
@@ -20,7 +21,10 @@ export default class HelloWorldScene extends Scene {
     this.load.image('ground', 'assets/platform.png');
     this.load.image('star', 'assets/star.png');
     this.load.image('bomb', 'assets/bomb.png');
-    this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('dude', 'assets/dude.png', {
+      frameWidth: 32,
+      frameHeight: 48,
+    });
     this.load.audio('coin', 'audio/coin.mp3');
   }
 
@@ -28,10 +32,12 @@ export default class HelloWorldScene extends Scene {
     this.physics.world.setBoundsCollision(true, true, false, true);
     this.createPlatformsAndBackground();
 
-    this.player = new PlayerObject(this, this.platforms);
-    this.createStarObject();
+    this.player = new PlayerObject(this, 100, 450);
+    this.physics.add.collider(this.player, this.platforms);
+
+    this.initStarObjects();
     this.createScoreInfo();
-    this.createBombObject();
+    this.initBombObjects();
   }
 
   update() {
@@ -49,41 +55,32 @@ export default class HelloWorldScene extends Scene {
     this.platforms.create(750, 220, 'ground');
   }
 
-  private createStarObject() {
-    const starObject = new StarObject(this, this.platforms);
+  private initStarObjects() {
+    this.stars = this.add.group();
+    this.physics.add.collider(this.stars, this.platforms);
+
+    for (let i = 0; i < 6; i++) {
+      this.stars.add(new StarObject(this, 60 + 130 * i, 0));
+    }
 
     this.physics.add.overlap(
-      this.player.playerSprite,
-      starObject.starGroup,
-      (player, star) => {
-        starObject.onPlayerCollision(
-          null,
-          star as Phaser.Types.Physics.Arcade.ImageWithDynamicBody
-        );
-
-        if (starObject.starGroup.countActive(true) === 6) {
-          this.bombObject.createBomb(
-            (player as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody).x
-          );
-        }
-
-        this.sound.add('coin');
-        this.sound.play('coin');
-
-        this.updateScoreInfo();
-      },
+      this.player,
+      this.stars,
+      (player, star) =>
+        this.playerAndStarCollission(player as PlayerObject, star as StarObject),
       undefined,
       this
     );
   }
 
-  createBombObject() {
-    this.bombObject = new BombObject(this, this.platforms);
+  initBombObjects() {
+    this.bombs = this.add.group();
+    this.physics.add.collider(this.platforms, this.bombs);
     this.physics.add.collider(
-      this.player.playerSprite,
-      this.bombObject.bombGroup,
+      this.player,
+      this.bombs,
       (player) => {
-        this.player.onBombCollision(player as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody);
+        this.player.onBombCollision(player as PlayerObject);
         this.physics.pause();
       },
       undefined,
@@ -101,5 +98,24 @@ export default class HelloWorldScene extends Scene {
   private updateScoreInfo() {
     this.score += 10;
     this.scoreText.setText(`Score: ${this.score}`);
+  }
+
+  private playerAndStarCollission(player: PlayerObject, star: StarObject) {
+    star.onPlayerCollision(null, star);
+
+    if (this.stars.countActive(true) === 0) {
+      this.stars.children.iterate(function (child) {
+        const star = child as StarObject;
+        star.enableBody(true, star.x, 0, true, true);
+      });
+    }
+
+    if (this.stars.countActive(true) === 6) {
+      const between = Phaser.Math.Between;
+      const x = player.x < 400 ? between(400, 800) : between(0, 400);
+      this.bombs.add(new BombObject(this, x, 16));
+    }
+
+    this.updateScoreInfo();
   }
 }

@@ -1,27 +1,13 @@
-import { Physics, GameObjects, Scene } from 'phaser';
+import { Physics, Scene } from 'phaser';
 
-export default class BombObject extends GameObjects.GameObject {
-  platforms: Physics.Arcade.StaticGroup;
-  bombGroup!: Physics.Arcade.Group;
+export default class BombObject extends Physics.Arcade.Image {
+  constructor(scene: Scene, x: number, y: number) {
+    super(scene, x, y, 'bomb');
+    this.scene.add.existing(this);
+    this.scene.physics.add.existing(this);
 
-  constructor(scene: Scene, platforms: Physics.Arcade.StaticGroup) {
-    super(scene, 'stars');
-    this.platforms = platforms;
-
-    this.create();
-  }
-
-  create() {
-    this.bombGroup = this.scene.physics.add.group();
-    this.scene.physics.add.collider(this.bombGroup, this.platforms);
-  }
-
-  createBomb(playerPositionX: number) {
-    var x = playerPositionX < 400 ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-
-    const bomb = this.bombGroup.create(x, 16, 'bomb');
-    bomb.setBounce(1);
-    bomb.setCollideWorldBounds(true);
-    bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+    this.setBounce(1)
+      .setCollideWorldBounds(true)
+      .setVelocity(Phaser.Math.Between(-200, 200), 20);
   }
 }

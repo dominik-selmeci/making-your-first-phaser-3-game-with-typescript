@@ -1,25 +1,25 @@
 import { Scene, Types } from 'phaser';
-import { Physics, GameObjects } from 'phaser';
+import { Physics } from 'phaser';
 
-export default class PlayerObject extends GameObjects.GameObject {
-  platforms: Physics.Arcade.StaticGroup;
+export default class PlayerObject extends Physics.Arcade.Sprite {
   playerSprite!: Types.Physics.Arcade.SpriteWithDynamicBody;
 
-  constructor(scene: Scene, platforms: Physics.Arcade.StaticGroup) {
-    super(scene, 'player');
-    this.platforms = platforms;
-
+  constructor(scene: Scene, x: number, y: number) {
+    super(scene, x, y, 'dude');
     this.create();
   }
 
   create() {
-    this.playerSprite = this.scene.physics.add
-      .sprite(100, 450, 'dude')
-      .setBounce(0.1)
-      .setCollideWorldBounds(true);
-    this.playerSprite.body.setGravityY(300);
-    this.scene.physics.add.collider(this.playerSprite, this.platforms);
+    this.scene.add.existing(this);
+    this.scene.physics.add.existing(this);
 
+    this.setCollideWorldBounds(true)
+      .setBounce(0.1)
+      .setGravityY(300)
+      .createAnimations();
+  }
+
+  createAnimations() {
     this.scene.anims.create({
       key: 'left',
       frames: this.scene.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -43,26 +43,25 @@ export default class PlayerObject extends GameObjects.GameObject {
 
   update() {
     const cursors = this.scene.input.keyboard.createCursorKeys();
-
     const speed = cursors.shift.isDown ? 340 : 160;
 
     if (cursors.left.isDown) {
-      this.playerSprite.setVelocityX(-speed);
-      this.playerSprite.anims.play('left', true);
+      this.setVelocityX(-speed);
+      this.anims.play('left', true);
     } else if (cursors.right.isDown) {
-      this.playerSprite.setVelocityX(speed);
-      this.playerSprite.anims.play('right', true);
+      this.setVelocityX(speed);
+      this.anims.play('right', true);
     } else {
-      this.playerSprite.setVelocityX(0);
-      this.playerSprite.anims.play('turn');
+      this.setVelocityX(0);
+      this.anims.play('turn');
     }
 
-    if (cursors.up.isDown && this.playerSprite.body.touching.down) {
-      this.playerSprite.setVelocityY(-480);
+    if (cursors.up.isDown && this.body.touching.down) {
+      this.setVelocityY(-480);
     }
   }
 
-  onBombCollision(player: Types.Physics.Arcade.SpriteWithDynamicBody) {
+  onBombCollision(player: PlayerObject) {
     player.setTint(0xff0000);
     player.anims.play('turn');
   }

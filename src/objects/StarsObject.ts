@@ -1,43 +1,17 @@
-import { Physics, GameObjects, Scene } from 'phaser';
+import { Physics, Scene } from 'phaser';
 import PlayerObject from './PlayerObject';
 
-export default class StarObject extends GameObjects.GameObject {
-  platforms: Physics.Arcade.StaticGroup;
-  starGroup!: Physics.Arcade.Group;
+export default class StarObject extends Physics.Arcade.Image {
+  constructor(scene: Scene, x: number, y: number) {
+    super(scene, x, y, 'star');
+    this.scene.add.existing(this);
+    this.scene.physics.add.existing(this);
 
-  constructor(scene: Scene, platforms: Physics.Arcade.StaticGroup) {
-    super(scene, 'stars');
-    this.platforms = platforms;
-
-    this.create();
+    this.setBounce(Phaser.Math.FloatBetween(0.2, 0.9));
   }
 
-  create() {
-    this.starGroup = this.scene.physics.add.group({
-      key: 'star',
-      repeat: 5,
-      setXY: { x: 60, y: 0, stepX: 130 },
-    });
-    this.starGroup.children.each((star) => {
-      (star as Phaser.Types.Physics.Arcade.ImageWithDynamicBody).setBounceY(
-        Phaser.Math.FloatBetween(0.2, 0.9)
-      );
-    });
-
-    this.scene.physics.add.collider(this.starGroup, this.platforms);
-  }
-
-  onPlayerCollision(
-    _: PlayerObject | null = null,
-    star: Phaser.Types.Physics.Arcade.ImageWithDynamicBody
-  ) {
+  onPlayerCollision(_: PlayerObject | null = null, star: Physics.Arcade.Image) {
     star.disableBody(true, true);
-
-    if (this.starGroup.countActive(true) === 0) {
-      this.starGroup.children.iterate(function (child) {
-        const star = child as Phaser.Types.Physics.Arcade.ImageWithDynamicBody;
-        star.enableBody(true, star.x, 0, true, true);
-      });
-    }
+    this.scene.sound.play('coin');
   }
 }
